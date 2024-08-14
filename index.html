@@ -2,29 +2,40 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Sua Localização Atual</title>
+    <title>Sua Localização no Mapa com Leaflet</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <style>
+        #map {
+            height: 400px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body onload="getUserLocation()">
+    <h1>Sua Localização no Mapa</h1>
+    <div id="map"></div>
     <script>
-        function mostrarLocalizacao() {
+        var map = L.map('map').setView([0, 0], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        function getUserLocation() {
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function(posicao) {
-                    var latitude  = posicao.coords.latitude;
-                    var longitude = posicao.coords.longitude;
-                    var precisao  = posicao.coords.accuracy;
-                    document.getElementById('localizacao').innerHTML = 
-                        'Latitude: ' + latitude + '<br>' +
-                        'Longitude: ' + longitude + '<br>' +
-                        'Precisão: ' + precisao + ' metros';
-                }, function(erro) {
-                    document.getElementById('localizacao').innerHTML = 'Erro ao obter localização: ' + erro.message;
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    var latLng = new L.LatLng(position.coords.latitude, position.coords.longitude);
+                    map.setView(latLng, 15);
+                    L.marker(latLng).addTo(map);
+                }, function(error) {
+                    alert('Não foi possível obter sua localização: ' + error.message);
                 });
             } else {
-                document.getElementById('localizacao').innerHTML = 'Este navegador não suporta Geolocation';
+                alert('Este navegador não suporta Geolocation.');
             }
         }
     </script>
-</head>
-<body onload="mostrarLocalizacao()">
-    <h1>Sua Localização Atual</h1>
-    <div id="localizacao">Carregando...</div>
 </body>
 </html>
