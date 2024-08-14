@@ -2,111 +2,97 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Jogo de Labirinto</title>
+    <title>Jogo das Portas</title>
     <style>
-        #maze {
-            width: 300px;
-            height: 300px;
-            border: 1px solid black;
-            position: relative;
+        .door {
+            display: inline-block;
+            width: 100px;
+            height: 200px;
+            background: #cdcdcd;
+            margin: 10px;
+            cursor: pointer;
+            text-align: center;
+            line-height: 200px;
+            font-size: 24px;
+            color: white;
         }
-        #player {
-            width: 20px;
-            height: 20px;
-            background-color: blue;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+        .correct-door {
+            background: green;
         }
-        #exit {
-            width: 20px;
-            height: 20px;
-            background-color: green;
-            position: absolute;
-            top: 10px;
-            left: 260px;
+        .incorrect-door {
+            background: red;
         }
-        #wall {
-            position: absolute;
-            background-color: black;
-            width: 20px;
-            height: 20px;
+        #game-controls {
+            margin-top: 20px;
         }
-        .hidden {
-            display: none;
+        #phase-number {
+            font-size: 20px;
         }
     </style>
 </head>
 <body>
-    <div id="maze">
-        <div id="player"></div>
-        <div id="exit"></div>
-        <!-- Adicione paredes aqui -->
-        <div id="wall" style="top: 50px; left: 50px;"></div>
-        <!-- ... -->
+    <div id="phase-number">Fase 1</div>
+    <div id="doors-container">
+        <!-- Portas serão adicionadas aqui -->
     </div>
-    <div id="status" class="hidden">Você ganhou! Pressione 'R' para reiniciar.</div>
+    <div id="game-controls">
+        <button onclick="startGame()" id="start-button">Começar</button>
+        <button onclick="playAgain()" id="play-again-button" class="hidden">Jogar Novamente</button>
+    </div>
     <script>
-        var player = document.getElementById('player');
-        var exit = document.getElementById('exit');
-        var maze = document.getElementById('maze');
-        var status = document.getElementById('status');
-        var walls = document.querySelectorAll('#wall');
-        var dx = 20;
-        var dy = 20;
+        var currentPhase = 1;
+        var doorsContainer = document.getElementById('doors-container');
+        var phaseNumber = document.getElementById('phase-number');
+        var startButton = document.getElementById('start-button');
+        var playAgainButton = document.getElementById('play-again-button');
 
-        function movePlayer(dx, dy) {
-            var newX = player.offsetLeft + dx;
-            var newY = player.offsetTop + dy;
-
-            if (newX >= 0 && newX <= maze.offsetWidth - player.offsetWidth &&
-                newY >= 0 && newY <= maze.offsetHeight - player.offsetHeight &&
-                !checkCollision(newX, newY)) {
-                player.style.left = newX + 'px';
-                player.style.top = newY + 'px';
+        function createDoors() {
+            doorsContainer.innerHTML = ''; // Limpar portas anteriores
+            for (var i = 0; i < 3; i++) {
+                var door = document.createElement('div');
+                door.classList.add('door');
+                door.id = 'door-' + i;
+                door.innerHTML = '?';
+                door.onclick = function() {
+                    checkDoor(this.id);
+                };
+                doorsContainer.appendChild(door);
             }
-
-            if (newX == exit.offsetLeft && newY == exit.offsetTop) {
-                status.classList.remove('hidden');
-            }
+            // Definir uma porta como correta
+            var correctDoorIndex = Math.floor(Math.random() * 3);
+            document.getElementById('door-' + correctDoorIndex).classList.add('correct-door');
         }
 
-        function checkCollision(x, y) {
-            for (var i = 0; i < walls.length; i++) {
-                if (walls[i].offsetLeft <= x && x < walls[i].offsetLeft + walls[i].offsetWidth &&
-                    walls[i].offsetTop <= y && y < walls[i].offsetTop + walls[i].offsetHeight) {
-                    return true;
+        function checkDoor(chosenDoorId) {
+            var chosenDoor = document.getElementById(chosenDoorId);
+            if (chosenDoor.classList.contains('correct-door')) {
+                if (currentPhase >= 10) {
+                    alert('Parabéns! Você completou todas as fases!');
+                    playAgainButton.classList.remove('hidden');
+                } else {
+                    currentPhase++;
+                    phaseNumber.innerHTML = 'Fase ' + currentPhase;
+                    createDoors();
                 }
+            } else {
+                alert('Você escolheu a porta errada! Voltando para a fase 1.');
+                currentPhase = 1;
+                phaseNumber.innerHTML = 'Fase 1';
+                createDoors();
             }
-            return false;
         }
 
-        document.addEventListener('keydown', function(event) {
-            switch (event.key) {
-                case 'ArrowLeft':
-                    movePlayer(-dx, 0);
-                    break;
-                case 'ArrowRight':
-                    movePlayer(dx, 0);
-                    break;
-                case 'ArrowUp':
-                    movePlayer(0, -dy);
-                    break;
-                case 'ArrowDown':
-                    movePlayer(0, dy);
-                    break;
-                case 'r':
-                case 'R':
-                    if (status.classList.contains('hidden')) {
-                        return;
-                    }
-                    status.classList.add('hidden');
-                    player.style.left = maze.offsetWidth / 2 - player.offsetWidth / 2 + 'px';
-                    player.style.top = maze.offsetHeight / 2 - player.offsetHeight / 2 + 'px';
-                    break;
-            }
-        });
+        function startGame() {
+            startButton.classList.add('hidden');
+            createDoors();
+        }
+
+        function playAgain() {
+            currentPhase = 1;
+            phaseNumber.innerHTML = 'Fase 1';
+            startButton.classList.remove('hidden');
+            playAgainButton.classList.add('hidden');
+        }
     </script>
 </body>
 </html>
