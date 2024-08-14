@@ -26,14 +26,23 @@
 
         function getUserLocation() {
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function(position) {
-                    var latLng = new L.LatLng(position.coords.latitude, position.coords.longitude);
-                    map.setView(latLng, 15);
-                    L.marker(latLng).addTo(map);
-                    displayLocationDetails(position);
-                }, function(error) {
-                    alert('Não foi possível obter sua localização: ' + error.message);
-                });
+                // Solicitar alta precisão
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        var latLng = new L.LatLng(position.coords.latitude, position.coords.longitude);
+                        map.setView(latLng, 15);
+                        L.marker(latLng).addTo(map);
+                        displayLocationDetails(position);
+                    },
+                    function(error) {
+                        alert('Não foi possível obter sua localização: ' + error.message);
+                    },
+                    {
+                        enableHighAccuracy: true, // Tentar obter a melhor precisão possível
+                        timeout: 10000, // Tempo máximo para obter a localização antes de falhar
+                        maximumAge: 0 // Não usar uma localização em cache
+                    }
+                );
             } else {
                 alert('Este navegador não suporta Geolocation.');
             }
@@ -42,7 +51,8 @@
         function displayLocationDetails(position) {
             var details = 'Latitude: ' + position.coords.latitude + '<br>';
             details += 'Longitude: ' + position.coords.longitude + '<br>';
-            details += 'Precisão: ' + position.coords.accuracy + ' metros';
+            details += 'Precisão: ' + position.coords.accuracy + ' metros<br>';
+            details += 'A precisão está dentro do limite desejado? ' + (position.coords.accuracy <= 20 ? 'Sim' : 'Não');
             document.getElementById('locationDetails').innerHTML = details;
         }
     </script>
