@@ -29,6 +29,9 @@
             display: none;
             margin-top: 30px;
         }
+        #start-button, #play-again-button {
+            margin: 10px;
+        }
     </style>
 </head>
 <body>
@@ -81,23 +84,31 @@
             var chosenDoor = document.getElementById(chosenDoorId);
             var isCorrect = chosenDoor.correct;
 
+            // Ocultar todas as portas
             for (var i = 0; i < doorsContainer.children.length; i++) {
                 doorsContainer.children[i].style.display = 'none';
             }
-            chosenDoor.style.display = 'block'; // Mostrar a porta escolhida
 
             if (isCorrect) {
+                // Mostrar apenas a porta escolhida
+                chosenDoor.style.display = 'block';
+
+                // Exibir o texto da história da fase atual
+                showStory(currentPhase);
+
+                // Se completou todas as fases, mostrar opção de jogar novamente
                 if (currentPhase >= 10) {
                     alert('Parabéns! Você completou todas as fases!');
                     playAgainButton.classList.remove('hidden');
                 } else {
-                    showStory(currentPhase);
+                    // Avançar para a próxima fase
                     currentPhase++;
                     phaseNumber.innerHTML = 'Fase ' + currentPhase;
                     createDoors();
                 }
             } else {
-                chosenDoor.classList.add('incorrect-door'); // Marcar a porta escolhida como incorreta
+                // Marcar a porta escolhida como incorreta
+                chosenDoor.classList.add('incorrect-door');
                 alert('Você escolheu a porta errada! Voltando para a fase 1.');
                 currentPhase = 1;
                 phaseNumber.innerHTML = 'Fase 1';
@@ -127,9 +138,6 @@
             var story = document.getElementById('story');
             story.innerHTML = "<p>" + storyTexts[phase - 1] + "</p>";
             story.classList.remove('hidden');
-            setTimeout(function() {
-                story.classList.add('hidden');
-            }, 5000); // A história desaparece após 5 segundos
         }
     </script>
 </body>
