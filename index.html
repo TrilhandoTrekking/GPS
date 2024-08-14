@@ -25,6 +25,10 @@
         #phase-number {
             font-size: 20px;
         }
+        #story {
+            display: none;
+            margin-top: 30px;
+        }
     </style>
 </head>
 <body>
@@ -36,12 +40,25 @@
         <button onclick="startGame()" id="start-button">Começar</button>
         <button onclick="playAgain()" id="play-again-button" class="hidden">Jogar Novamente</button>
     </div>
+    <div id="story"></div>
     <script>
         var currentPhase = 1;
         var doorsContainer = document.getElementById('doors-container');
         var phaseNumber = document.getElementById('phase-number');
         var startButton = document.getElementById('start-button');
         var playAgainButton = document.getElementById('play-again-button');
+        var storyTexts = [
+            "Você descobriu a entrada de um antigo templo escondido na selva. Após entrar, você se depara com três portas seladas por maldições antigas.",
+            "Você atravessou a primeira porta e agora está na Sala dos Sussurros, onde as paredes parecem sussurrar segredos.",
+            "Na Câmara dos Espelhos, cada parede é um espelho que distorce sua imagem. Escolha cuidadosamente a porta que leva adiante.",
+            "A próxima sala é a Câmara dos Elementos. Um mecanismo indica harmonia com apenas um dos elementos representados.",
+            "No Labirinto das Sombras, as sombras dançam e sussurram. Você precisa discernir o caminho verdadeiro entre as três saídas.",
+            "Você chegou ao Salão dos Espíritos, onde espíritos guardiões flutuam ao redor das portas. Eles parecem querer comunicar algo...",
+            "Na Galeria dos Reflexos, apenas uma das estátuas é um reflexo verdadeiro de você mesmo. Qual porta ela esconde?",
+            "A Sala dos Símbolos Sagrados está coberta por hieróglifos. Decifre qual porta é a passagem dos antigos sacerdotes.",
+            "No Santuário dos Sonhos, você deve escolher entre o pesadelo, o sonho profético e a visão utópica.",
+            "Você alcançou o Salão do Destino, com três portas finais diante de você. Sua jornada culmina nesta escolha."
+        ];
 
         function createDoors() {
             doorsContainer.innerHTML = ''; // Limpar portas anteriores
@@ -64,15 +81,8 @@
             var chosenDoor = document.getElementById(chosenDoorId);
             var isCorrect = chosenDoor.correct;
 
-            // Ocultar todas as portas e revelar apenas a escolhida
             for (var i = 0; i < doorsContainer.children.length; i++) {
-                var door = doorsContainer.children[i];
-                door.style.display = 'none';
-                if (door.correct && door != chosenDoor) {
-                    // Mostrar a porta correta se ela não foi escolhida
-                    door.style.display = 'block';
-                    door.classList.add('correct-door');
-                }
+                doorsContainer.children[i].style.display = 'none';
             }
             chosenDoor.style.display = 'block'; // Mostrar a porta escolhida
 
@@ -81,6 +91,7 @@
                     alert('Parabéns! Você completou todas as fases!');
                     playAgainButton.classList.remove('hidden');
                 } else {
+                    showStory(currentPhase);
                     currentPhase++;
                     phaseNumber.innerHTML = 'Fase ' + currentPhase;
                     createDoors();
@@ -104,13 +115,21 @@
             phaseNumber.innerHTML = 'Fase 1';
             startButton.classList.remove('hidden');
             playAgainButton.classList.add('hidden');
-            // Resetar todas as portas
             for (var i = 0; i < doorsContainer.children.length; i++) {
                 doorsContainer.children[i].style.display = 'inline-block';
                 doorsContainer.children[i].classList.remove('correct-door');
                 doorsContainer.children[i].classList.remove('incorrect-door');
                 delete doorsContainer.children[i].correct;
             }
+        }
+
+        function showStory(phase) {
+            var story = document.getElementById('story');
+            story.innerHTML = "<p>" + storyTexts[phase - 1] + "</p>";
+            story.classList.remove('hidden');
+            setTimeout(function() {
+                story.classList.add('hidden');
+            }, 5000); // A história desaparece após 5 segundos
         }
     </script>
 </body>
