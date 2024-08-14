@@ -2,59 +2,111 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Sua Localização no Mapa com Leaflet</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <title>Jogo de Labirinto</title>
     <style>
-        #map {
-            height: 400px;
-            width: 100%;
+        #maze {
+            width: 300px;
+            height: 300px;
+            border: 1px solid black;
+            position: relative;
+        }
+        #player {
+            width: 20px;
+            height: 20px;
+            background-color: blue;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        #exit {
+            width: 20px;
+            height: 20px;
+            background-color: green;
+            position: absolute;
+            top: 10px;
+            left: 260px;
+        }
+        #wall {
+            position: absolute;
+            background-color: black;
+            width: 20px;
+            height: 20px;
+        }
+        .hidden {
+            display: none;
         }
     </style>
 </head>
-<body onload="getUserLocation()">
-    <h1>Sua Localização no Mapa</h1>
-    <div id="map"></div>
-    <div id="locationDetails" style="margin-top: 10px;"></div>
+<body>
+    <div id="maze">
+        <div id="player"></div>
+        <div id="exit"></div>
+        <!-- Adicione paredes aqui -->
+        <div id="wall" style="top: 50px; left: 50px;"></div>
+        <!-- ... -->
+    </div>
+    <div id="status" class="hidden">Você ganhou! Pressione 'R' para reiniciar.</div>
     <script>
-        var map = L.map('map').setView([0, 0], 13);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
+        var player = document.getElementById('player');
+        var exit = document.getElementById('exit');
+        var maze = document.getElementById('maze');
+        var status = document.getElementById('status');
+        var walls = document.querySelectorAll('#wall');
+        var dx = 20;
+        var dy = 20;
 
-        function getUserLocation() {
-            if (navigator.geolocation) {
-                // Solicitar alta precisão
-                navigator.geolocation.getCurrentPosition(
-                    function(position) {
-                        var latLng = new L.LatLng(position.coords.latitude, position.coords.longitude);
-                        map.setView(latLng, 15);
-                        L.marker(latLng).addTo(map);
-                        displayLocationDetails(position);
-                    },
-                    function(error) {
-                        alert('Não foi possível obter sua localização: ' + error.message);
-                    },
-                    {
-                        enableHighAccuracy: true, // Tentar obter a melhor precisão possível
-                        timeout: 10000, // Tempo máximo para obter a localização antes de falhar
-                        maximumAge: 0 // Não usar uma localização em cache
-                    }
-                );
-            } else {
-                alert('Este navegador não suporta Geolocation.');
+        function movePlayer(dx, dy) {
+            var newX = player.offsetLeft + dx;
+            var newY = player.offsetTop + dy;
+
+            if (newX >= 0 && newX <= maze.offsetWidth - player.offsetWidth &&
+                newY >= 0 && newY <= maze.offsetHeight - player.offsetHeight &&
+                !checkCollision(newX, newY)) {
+                player.style.left = newX + 'px';
+                player.style.top = newY + 'px';
+            }
+
+            if (newX == exit.offsetLeft && newY == exit.offsetTop) {
+                status.classList.remove('hidden');
             }
         }
 
-        function displayLocationDetails(position) {
-            var details = 'Latitude: ' + position.coords.latitude + '<br>';
-            details += 'Longitude: ' + position.coords.longitude + '<br>';
-            details += 'Precisão: ' + position.coords.accuracy + ' metros<br>';
-            details += 'A precisão está dentro do limite desejado? ' + (position.coords.accuracy <= 20 ? 'Sim' : 'Não');
-            document.getElementById('locationDetails').innerHTML = details;
+        function checkCollision(x, y) {
+            for (var i = 0; i < walls.length; i++) {
+                if (walls[i].offsetLeft <= x && x < walls[i].offsetLeft + walls[i].offsetWidth &&
+                    walls[i].offsetTop <= y && y < walls[i].offsetTop + walls[i].offsetHeight) {
+                    return true;
+                }
+            }
+            return false;
         }
+
+        document.addEventListener('keydown', function(event) {
+            switch (event.key) {
+                case 'ArrowLeft':
+                    movePlayer(-dx, 0);
+                    break;
+                case 'ArrowRight':
+                    movePlayer(dx, 0);
+                    break;
+                case 'ArrowUp':
+                    movePlayer(0, -dy);
+                    break;
+                case 'ArrowDown':
+                    movePlayer(0, dy);
+                    break;
+                case 'r':
+                case 'R':
+                    if (status.classList.contains('hidden')) {
+                        return;
+                    }
+                    status.classList.add('hidden');
+                    player.style.left = maze.offsetWidth / 2 - player.offsetWidth / 2 + 'px';
+                    player.style.top = maze.offsetHeight / 2 - player.offsetHeight / 2 + 'px';
+                    break;
+            }
+        });
     </script>
 </body>
 </html>
