@@ -16,6 +16,7 @@
 <body onload="getUserLocation()">
     <h1>Sua Localização no Mapa</h1>
     <div id="map"></div>
+    <div id="locationDetails" style="margin-top: 10px;"></div>
     <script>
         var map = L.map('map').setView([0, 0], 13);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -29,12 +30,20 @@
                     var latLng = new L.LatLng(position.coords.latitude, position.coords.longitude);
                     map.setView(latLng, 15);
                     L.marker(latLng).addTo(map);
+                    displayLocationDetails(position);
                 }, function(error) {
                     alert('Não foi possível obter sua localização: ' + error.message);
                 });
             } else {
                 alert('Este navegador não suporta Geolocation.');
             }
+        }
+
+        function displayLocationDetails(position) {
+            var details = 'Latitude: ' + position.coords.latitude + '<br>';
+            details += 'Longitude: ' + position.coords.longitude + '<br>';
+            details += 'Precisão: ' + position.coords.accuracy + ' metros';
+            document.getElementById('locationDetails').innerHTML = details;
         }
     </script>
 </body>
